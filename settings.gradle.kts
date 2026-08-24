@@ -4,6 +4,8 @@
 
 rootProject.name = "Syna-NUSV"
 
+val isCI = System.getenv("CI") != null
+
 pluginManagement {
     repositories {
         google {
@@ -13,9 +15,13 @@ pluginManagement {
                 includeGroupAndSubgroups("com.google")
             }
         }
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/central")
-        maven("https://maven.aliyun.com/repository/gradle-plugin")
+        if (!isCI) {
+            // Aliyun mirrors speed up builds in China but are unreliable on
+            // GitHub-hosted runners, so they are only used outside CI.
+            maven("https://maven.aliyun.com/repository/google")
+            maven("https://maven.aliyun.com/repository/central")
+            maven("https://maven.aliyun.com/repository/gradle-plugin")
+        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -23,9 +29,11 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/central")
-        maven("https://maven.aliyun.com/repository/gradle-plugin")
+        if (!isCI) {
+            maven("https://maven.aliyun.com/repository/google")
+            maven("https://maven.aliyun.com/repository/central")
+            maven("https://maven.aliyun.com/repository/gradle-plugin")
+        }
         google()
         mavenCentral()
     }
