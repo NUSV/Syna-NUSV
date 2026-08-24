@@ -17,7 +17,7 @@ object UpdateChecker {
     @Serializable
     private data class GitHubRelease(val tag_name: String? = null, val html_url: String? = null)
 
-    private const val RELEASES_API = "https://api.github.com/repos/Verlintas/Syna-NUSV/releases/latest"
+    private const val RELEASES_API = "https://api.github.com/repos/NUSV/Syna-NUSV/releases/latest"
 
     /** 检查最新版本；onResult(newVersion, url)（无更新或失败不回调或回调空） */
     fun checkAsync(currentVersion: String, onResult: (String, String) -> Unit) {
