@@ -147,7 +147,10 @@ android {
     }
     signingConfigs {
         create("release") {
-            storeFile = rootProject.file(localProps.getProperty("syna.keystore.file", ""))
+            val keystoreFile = localProps.getProperty("syna.keystore.file")
+            if (!keystoreFile.isNullOrBlank()) {
+                storeFile = rootProject.file(keystoreFile)
+            }
             storePassword = localProps.getProperty("syna.keystore.password", "")
             keyAlias = localProps.getProperty("syna.key.alias", "")
             keyPassword = localProps.getProperty("syna.key.password", "")
