@@ -1,5 +1,15 @@
 # Syna
 
+<p align="center"><img src="banner.svg" alt="Syna" width="100%"></p>
+
+<p align="center">
+  <a href="https://github.com/NUSV/Syna-NUSV/actions"><img src="https://img.shields.io/github/actions/workflow/status/NUSV/Syna-NUSV/build.yml?branch=main&label=build&logo=github" alt="Build status"></a>
+  <a href="https://github.com/NUSV/Syna-NUSV/releases"><img src="https://img.shields.io/github/v/release/NUSV/Syna-NUSV?label=release" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/NUSV/Syna-NUSV" alt="License"></a>
+  <a href="https://github.com/NUSV/Syna-NUSV"><img src="https://img.shields.io/github/stars/NUSV/Syna-NUSV" alt="Stars"></a>
+  <img src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20macOS-blue" alt="Platforms">
+</p>
+
 **Syna** is a LAN instant messaging app built with **Kotlin Multiplatform + Compose Multiplatform**. It runs on **Android**, **Windows**, and **macOS** with a fully peer-to-peer architecture — no central server, no internet required.
 
 > 🤖 **AI-generated code notice / AI 生成代码声明**: This project's source code was predominantly generated with the assistance of AI agents (LLM-based coding assistants), then reviewed and tested by humans. Please review code before relying on it in production.
