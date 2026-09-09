@@ -1,0 +1,11 @@
+{
+  "slug": "syna",
+  "name": "Syna",
+  "tagline": "Offline-first LAN messenger with end-to-end encryption, group chat, self-hosted servers and a built-in anti-tamper shield.",
+  "platforms": [
+    "Android",
+    "Windows",
+    "macOS"
+  ],
+  "docs": "/docs/syna.html"
+}
