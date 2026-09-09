@@ -1,7 +1,5 @@
 # Syna
 
-<p align="center"><img src="banner.svg" alt="Syna" width="100%"></p>
-
 <p align="center">
   <a href="https://github.com/NUSV/Syna-NUSV/actions"><img src="https://img.shields.io/github/actions/workflow/status/NUSV/Syna-NUSV/build.yml?branch=main&label=build&logo=github" alt="Build status"></a>
   <a href="https://github.com/NUSV/Syna-NUSV/releases"><img src="https://img.shields.io/github/v/release/NUSV/Syna-NUSV?label=release" alt="Latest release"></a>
