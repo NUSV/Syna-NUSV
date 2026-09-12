@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.syna.shield.ShieldController
 import com.syna.shield.ShieldState
 import com.syna.shield.ShieldThreat
+import com.syna.shield.DesktopUnlockPassword
 
 private val ShieldBlack = Color(0xFF000000)
 private val ShieldRed = Color(0xFFFF2D2D)
@@ -197,6 +198,64 @@ fun ShieldLockScreen(controller: ShieldController, modifier: Modifier = Modifier
                 } else {
                     "动态码来自你导入种子的 TOTP 应用（如 Google Authenticator）。错误码将计入暴力防护。"
                 },
+                fontSize = 12.sp,
+                color = ShieldWhiteDim.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center,
+            )
+            return@Column
+        }
+
+        // 桌面端解锁密码（macOS/Windows/Linux）：已设置密码时显示密码输入
+        // （真正的第一因子；未设置时保持原"点击解锁"行为）
+        if (state == ShieldState.LOCKED && DesktopUnlockPassword.supported && DesktopUnlockPassword.hasPassword()) {
+            var pw by remember { mutableStateOf("") }
+            Text(
+                text = "输入解锁密码",
+                fontSize = 14.sp,
+                color = ShieldWhite,
+            )
+            Spacer(Modifier.height(12.dp))
+            androidx.compose.material3.OutlinedTextField(
+                value = pw,
+                onValueChange = { pw = it },
+                singleLine = true,
+                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                placeholder = { Text("解锁密码", color = ShieldWhiteDim) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    color = ShieldBlack,
+                    fontSize = 18.sp,
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = ShieldRed,
+                    unfocusedBorderColor = ShieldWhite.copy(alpha = 0.4f),
+                    focusedTextColor = ShieldBlack,
+                    unfocusedTextColor = ShieldBlack,
+                    cursorColor = ShieldRed,
+                    focusedContainerColor = ShieldWhite,
+                    unfocusedContainerColor = ShieldWhite,
+                ),
+            )
+            Spacer(Modifier.height(12.dp))
+            Button(
+                onClick = { controller.requestUnlockWithPassword(pw) },
+                enabled = pw.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ShieldWhite,
+                    contentColor = ShieldBlack,
+                    disabledContainerColor = ShieldWhite.copy(alpha = 0.3f),
+                    disabledContentColor = ShieldBlack.copy(alpha = 0.5f),
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+            ) {
+                Text("解锁", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "错误密码将计入暴力防护。忘记密码无法恢复（可配合 TOTP 双因子使用）。",
                 fontSize = 12.sp,
                 color = ShieldWhiteDim.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,

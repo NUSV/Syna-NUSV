@@ -854,46 +854,72 @@ class ShieldController(
         }
         engine.requestBiometricUnlock { granted ->
             if (granted) {
-                if (totpEnabledM.value && stateM.value == ShieldState.LOCKED) {
-                    // 第一因子通过：进入 TOTP 等待（第二因子）
-                    setState(ShieldState.AWAITING_TOTP)
-                    return@requestBiometricUnlock
-                }
-                if (honeypotM.value) {
-                    // 假锁模式：一次验证不够——连续成功多次才放行（攻击者无生物特征）
-                    honeypotStreak++
-                    recordEvent(ShieldThreat.FRIDA_DETECTED, ShieldAction.HONEYPOT)
-                    if (honeypotStreak >= HONEYPOT_REQUIRED_STREAK) {
-                        honeypotM.value = false
-                        honeypotStreak = 0
-                        setState(ShieldState.UNLOCKED)
-                        recordEvent(ShieldThreat.INACTIVE, ShieldAction.UNLOCKED)
-                        scheduleRelockIfCritical()
-                        scheduleUnlockExpiry()
-                    }
-                    // 未达次数：保持锁定（密钥保持释放）
-                } else {
-                    // 解锁成功：清零暴力失败计数与冷却
-                    biometricFailsM.value = 0
-                    persistBiometricFails(0)
-                    nextUnlockAt = 0L
-                    cooldownMs = 0L
-                    // 先恢复门禁（gate 放行），再捕获会话密钥并轮换（前向安全）：
-                    // 顺序保证迁移前能解密旧数据（解锁时序修复）
-                    // 解锁成功：清除事件型威胁 BRUTE_FORCE（防永久 30s 再锁循环）
-                    if (threatsM.value.contains(ShieldThreat.BRUTE_FORCE)) {
-                        clearThreat(ShieldThreat.BRUTE_FORCE)
-                    }
-                    setState(ShieldState.UNLOCKED)
-                    SessionKeyStore.captureAuth()
-                    recordEvent(ShieldThreat.INACTIVE, ShieldAction.UNLOCKED)
-                    scheduleRelockIfCritical()
-                    scheduleUnlockExpiry()
-                    sessionRotateCallback?.invoke()
-                }
+                handleUnlockGranted()
             } else {
                 onBiometricFailed()
             }
+        }
+    }
+
+    /**
+     * 桌面解锁密码验证（第一因子）：校验通过后与生物识别走同一 granted 流程
+     * （TOTP 启用时进入第二因子等待；假锁模式下同样要求多次验证）。
+     * 失败计入暴力防护。
+     */
+    fun requestUnlockWithPassword(password: String) {
+        stateIntact()
+        if (!enabledM.value) {
+            setState(ShieldState.UNLOCKED)
+            return
+        }
+        if (stateM.value == ShieldState.AWAITING_TOTP) return
+        val now = System.currentTimeMillis()
+        if (now < nextUnlockAt) return
+        if (DesktopUnlockPassword.verifyPassword(password)) {
+            handleUnlockGranted()
+        } else {
+            onBiometricFailed()
+        }
+    }
+
+    /** 第一因子通过后的统一流程（生物识别 / 桌面密码共用） */
+    private fun handleUnlockGranted() {
+        if (totpEnabledM.value && stateM.value == ShieldState.LOCKED) {
+            // 第一因子通过：进入 TOTP 等待（第二因子）
+            setState(ShieldState.AWAITING_TOTP)
+            return
+        }
+        if (honeypotM.value) {
+            // 假锁模式：一次验证不够——连续成功多次才放行（攻击者无生物特征）
+            honeypotStreak++
+            recordEvent(ShieldThreat.FRIDA_DETECTED, ShieldAction.HONEYPOT)
+            if (honeypotStreak >= HONEYPOT_REQUIRED_STREAK) {
+                honeypotM.value = false
+                honeypotStreak = 0
+                setState(ShieldState.UNLOCKED)
+                recordEvent(ShieldThreat.INACTIVE, ShieldAction.UNLOCKED)
+                scheduleRelockIfCritical()
+                scheduleUnlockExpiry()
+            }
+            // 未达次数：保持锁定（密钥保持释放）
+        } else {
+            // 解锁成功：清零暴力失败计数与冷却
+            biometricFailsM.value = 0
+            persistBiometricFails(0)
+            nextUnlockAt = 0L
+            cooldownMs = 0L
+            // 先恢复门禁（gate 放行），再捕获会话密钥并轮换（前向安全）：
+            // 顺序保证迁移前能解密旧数据（解锁时序修复）
+            // 解锁成功：清除事件型威胁 BRUTE_FORCE（防永久 30s 再锁循环）
+            if (threatsM.value.contains(ShieldThreat.BRUTE_FORCE)) {
+                clearThreat(ShieldThreat.BRUTE_FORCE)
+            }
+            setState(ShieldState.UNLOCKED)
+            SessionKeyStore.captureAuth()
+            recordEvent(ShieldThreat.INACTIVE, ShieldAction.UNLOCKED)
+            scheduleRelockIfCritical()
+            scheduleUnlockExpiry()
+            sessionRotateCallback?.invoke()
         }
     }
 

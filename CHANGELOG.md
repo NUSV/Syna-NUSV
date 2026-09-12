@@ -9,6 +9,14 @@ Format: `version — date — summary`. Releases:
 
 ---
 
+## [1.0.1] — 2026-08-12 — Desktop unlock password (macOS focus)
+
+### Added
+- **Desktop unlock password** (macOS / Windows / Linux): the desktop lock screen previously unlocked with a single click (JVM has no unified biometric API — the lock was UI-only). You can now set a real first-factor password in Settings → Shield; PBKDF2-HMAC-SHA256 (210k iterations, 16-byte salt, constant-time comparison), stored encrypted with atomic writes, wiped on self-destruct. Works standalone or stacked with TOTP as a second factor. Wrong passwords count toward brute-force protection; no recovery by design (documented on the lock screen)
+
+### Tests
+- 91 (added desktop password round-trip, controller unlock/brute-force, password+TOTP stacking)
+
 ## [1.0.0] — 2026-08-12 — Stable: full code review & license audit pass
 
 ### Stability & correctness (19 issues fixed, verified by a full code review)

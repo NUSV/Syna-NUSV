@@ -158,7 +158,7 @@ fun App() {
         // 版本更新检测：启动后延迟拉取 GitHub Releases（失败静默；后台线程）
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
             kotlinx.coroutines.delay(10_000)
-            com.syna.util.UpdateChecker.checkAsync("1.0.0") { tag, url ->
+            com.syna.util.UpdateChecker.checkAsync("1.0.1") { tag, url ->
                 com.syna.util.notifyMessage(
                     "Syna",
                     "发现新版本 $tag。请前往 GitHub Releases 下载更新。",

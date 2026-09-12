@@ -54,6 +54,7 @@ import com.syna.util.PermissionState
 import com.syna.util.notificationPermissionState
 import com.syna.shield.requestUsageAccessPermission
 import com.syna.shield.shieldUsageAccessGranted
+import com.syna.shield.DesktopUnlockPassword
 import com.syna.storage.clearReceivedFiles
 import com.syna.storage.receivedFilesSize
 import com.syna.util.rememberNotificationPermissionRequester
@@ -456,6 +457,91 @@ fun SettingsScreen(
                     },
                 )
             }
+        // 桌面解锁密码（macOS/Windows/Linux 专属）：桌面无生物识别 API，
+        // 设置密码后锁定页需密码解锁（第一因子，可与 TOTP 叠加）
+        if (DesktopUnlockPassword.supported) {
+            var pwHas by remember { mutableStateOf(DesktopUnlockPassword.hasPassword()) }
+            var pwOld by remember { mutableStateOf("") }
+            var pwNew by remember { mutableStateOf("") }
+            var pwMsg by remember { mutableStateOf<String?>(null) }
+            Spacer(Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("解锁密码（桌面）", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        if (pwHas) "已设置：锁定后需输入密码解锁（可叠加 TOTP 双因子）"
+                        else "未设置：锁定后点击按钮即可解锁。建议设置密码获得真正的第一因子",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (!pwHas) {
+                androidx.compose.material3.OutlinedTextField(
+                    value = pwNew,
+                    onValueChange = { pwNew = it },
+                    singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    placeholder = { Text("新密码（至少 6 位）") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                )
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        pwMsg = if (DesktopUnlockPassword.setPassword(pwNew)) {
+                            pwHas = true; pwNew = ""; "解锁密码已设置"
+                        } else {
+                            "设置失败：密码至少 6 位且存储可用"
+                        }
+                    },
+                    enabled = pwNew.length >= DesktopUnlockPassword.MIN_PASSWORD_LENGTH,
+                ) { Text("设置密码") }
+            } else {
+                androidx.compose.material3.OutlinedTextField(
+                    value = pwOld,
+                    onValueChange = { pwOld = it },
+                    singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    placeholder = { Text("当前密码") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                )
+                androidx.compose.material3.OutlinedTextField(
+                    value = pwNew,
+                    onValueChange = { pwNew = it },
+                    singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    placeholder = { Text("新密码（至少 6 位，修改用）") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                )
+                Row {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            if (!DesktopUnlockPassword.verifyPassword(pwOld)) {
+                                pwMsg = "当前密码错误"
+                            } else if (DesktopUnlockPassword.setPassword(pwNew)) {
+                                pwOld = ""; pwNew = ""; pwMsg = "解锁密码已修改"
+                            } else {
+                                pwMsg = "修改失败：新密码至少 6 位"
+                            }
+                        },
+                        enabled = pwOld.isNotEmpty() && pwNew.length >= DesktopUnlockPassword.MIN_PASSWORD_LENGTH,
+                    ) { Text("修改密码") }
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            if (!DesktopUnlockPassword.verifyPassword(pwOld)) {
+                                pwMsg = "当前密码错误"
+                            } else {
+                                DesktopUnlockPassword.clearPassword()
+                                pwHas = false; pwOld = ""; pwNew = ""; pwMsg = "解锁密码已清除"
+                            }
+                        },
+                        enabled = pwOld.isNotEmpty(),
+                    ) { Text("清除密码", color = MaterialTheme.colorScheme.error) }
+                }
+            }
+            pwMsg?.let {
+                Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+            }
+        }
         Text(
             "能力边界：应用层无法检测系统级预装监控/企业 MDM（设备所有者权限），本功能不声称能隔绝此类监测。桌面端仅提供闲置自动锁定。",
             style = MaterialTheme.typography.labelSmall,
