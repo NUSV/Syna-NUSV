@@ -16,7 +16,7 @@
 > 📖 **New to Syna? Read the tutorial** — quick start, LAN chat, private server setup, NAT traversal (frp/ngrok/Tailscale), security model & troubleshooting.
 > 📖 **初次使用？请看教程** — 快速开始、局域网聊天、私人服务器搭建、内网穿透、安全模型与故障排查。
 >
-> **English**: [TUTORIAL_EN.md](TUTORIAL_EN.md) · **中文**: [TUTORIAL_ZH.md](TUTORIAL_ZH.md) · **入口**: [TUTORIAL.md](TUTORIAL.md)
+> **English**: [docs/tutorials/en.md](docs/tutorials/en.md) · **中文**: [docs/tutorials/zh.md](docs/tutorials/zh.md) · **入口**: [docs/tutorials/index.md](docs/tutorials/index.md)
 
 ## Features
 
@@ -29,7 +29,7 @@
 - ✅ **Message recall**: long-press your message → recall within 2 minutes, both sides marked
 - ✅ **Quote reply & @mentions**: long-press → reply with quoted preview; @ member picker in groups
 - ✅ **◇Mirtazapine Shield**: real-time security monitor & app lock
-  - 📖 **Full design & detection matrix**: [MIRTAZAPINE_SHIELD.md](MIRTAZAPINE_SHIELD.md) — why the protection holds even with the source fully public
+  - 📖 **Full design & detection matrix**: [docs/security/shield-design.md](docs/security/shield-design.md) — why the protection holds even with the source fully public
   - **Detection (25+ sources, JVM + native NDK dual-channel)**: Root (incl. Magisk/Xposed/Zygisk/Shamiko/LSPosed/**Riru/EdXposed/TaiChi**) · Frida injection (paths, ports 27042/27043, /proc/self/maps, threads, **TracerPid**) · emulator · USB debugging/ADB · device-admin takeover (MDM) · credential change · VPN/proxy change · **CA-cert change & ARP spoofing (LAN MITM)** · network fingerprint (SSID) · rapid background switching · accessibility abuse · monitoring apps (incl. **signature-learning blacklist — renamed/repackaged still caught**) · **screen capture/recording events (API 34+)** · screen mirroring · SELinux · clock tamper · weak lock · **IME change · USB attach/detach · suspicious executable module (partition whitelist + non-JIT memfd, name-independent)** · system proxy · device identity · downgrade attempts · JVM `-javaagent` injection · remote-control processes
   - **Active countermeasures**: operation-triggered integrity probing on the decrypt path · watchdog self-healing (scanner restart) · honeypot data pollution (decoy messages)
   - **Response**: full-screen severity-graded lock page · **TOTP two-factor unlock** (biometric + 6-digit dynamic code, RFC 6238, seed via `otpauth://` import) · **dual-factor disable** (the shield cannot be turned off without biometrics + TOTP) · biometric unlock (**BIOMETRIC_STRONG-only** — no device-credential auto-pass; 5-min expiry, critical re-lock) · **self-destruct protocol** (wipes local chats & files on critical compromise) · **honeypot fake-lock** for injection threats (real key release + triple verification) · brute-force protection (5 fails → key release + self-destruct; exponential unlock cooldown)
@@ -37,7 +37,7 @@
   - **Data protection**: chat history **AES-GCM encrypted at rest** (Keystore TEE / 0600 key) · **data-level key gate** (session key wrapped by biometric-authenticated Keystore key — no auth → new data unreadable) · **session-key rotation per unlock** (forward secrecy) · memory cleared while locked & after 60s background · screen-capture protection & **capture-event detection (API 34+)** · clipboard protection · notifications hidden while locked
   - **Audit**: **hash-chained + AES-GCM encrypted** event timeline persisted across restarts
   - **Live status panel**: gate freshness · watchdog trips · honeypot state · biometric fail counter · latest audit events
-  - Honest boundary: device-owner-level monitoring (pre-installed spyware / MDM) and kernel-level rootkits (forged /proc) cannot be seen by an app-layer solution; the fail-closed gate, data-level key gate, native anti-hook and self-destruct are the compensating controls — stated in-app and in [MIRTAZAPINE_SHIELD.md §16](MIRTAZAPINE_SHIELD.md#16-honest-boundary-again-plainly)
+  - Honest boundary: device-owner-level monitoring (pre-installed spyware / MDM) and kernel-level rootkits (forged /proc) cannot be seen by an app-layer solution; the fail-closed gate, data-level key gate, native anti-hook and self-destruct are the compensating controls — stated in-app and in [docs/security/shield-design.md §16](docs/security/shield-design.md#16-honest-boundary-again-plainly)
 - ✅ **Chat history persistence**: LAN chats survive restarts — encrypted at rest (AES-GCM, Keystore/0600 key); full state restored (recalls, files, quotes, mentions)
 - ✅ **Clear local history**: Settings → Storage shows usage and wipes chats & received files
 - ✅ **Message forwarding**: long-press → forward to any conversation/group
@@ -206,4 +206,4 @@ This project is licensed under the **GNU General Public License v3.0** — see [
 
 **AI generation / AI 生成声明**: see the notice at the top of this README (the AI-generated-code statement and audit notes live in the docs, **not** in the LICENSE file).
 
-**Assets / 资源**: `Syna_logo.png` / `Syna_logo_2.png` are provided by the project owner (current app icon is `Syna_logo_2.png`, applied to Android launcher & desktop tray). Other assets (icons, documentation) are generated by this project.
+**Assets / 资源**: `assets/icons/Syna_logo.png` / `assets/icons/Syna_logo_2.png` are provided by the project owner (current app icon is `Syna_logo_2.png`, applied to Android launcher & desktop tray). Other assets (icons, documentation) are generated by this project.
