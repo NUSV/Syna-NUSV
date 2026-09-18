@@ -7,5 +7,6 @@
     "Windows",
     "macOS"
   ],
-  "docs": "/docs/syna.html"
+  "docs": "/docs/syna.html",
+  "icon": "assets/icons/Syna_logo_2.png"
 }
